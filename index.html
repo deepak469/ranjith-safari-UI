@@ -1,0 +1,113 @@
+<html>
+
+<head>
+    <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase-messaging.js"></script>
+    <script src="assets/js/aes.js"></script>
+    <script src="assets/js/imi-environments.js"></script>
+    <script src="assets/js/IMIClient.js"></script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/mqttws31.js"></script>
+    <script src="assets/app/imi-utility.js"></script>
+    <link rel="stylesheet" href="api-demo.css">
+</head>
+
+<body>
+
+    <a href="/api-demo.html">
+        <h1>WXCNCT-</h1>
+        <script>
+            // IMI.IMIconnect.startup();
+        </script>
+    </a>
+    <div class="page-content">
+        <h2>Request Push Permission (Safari only)</h2>
+        </a>
+        <div class="item">
+            <input type="text" id="txtRegisterUserID" placeholder="userid" value="1" />
+            <input type="button" value="registerWithUserId" onclick="register()">
+            <br>
+            <input type="button" id="btnRequestSafariPermission" value="Request Push permission"
+                onclick="requestPushPermissionForSafari();" />
+            <script>
+                IMI.IMIconnect.startup();
+                function register(userID) {
+                    if (!userID) {
+                        if (document.querySelector('#txtRegisterUserID').value.length == 0) {
+                            err(document.querySelector('#txtRegisterUserID'), "Please enter registerUserID ");
+                        }
+                        else
+                            userID = document.querySelector('#txtRegisterUserID').value;
+                    }
+                    console.log("register", userID);
+                    var deviceID = new Date().getTime(); //any random no.
+                    var deviceProfile = new IMI.ICDeviceProfile(deviceID, userID);
+                    var registerCallback = {
+                        onSuccess: (data) => {
+                            console.log('success:user registered', data);
+                        },
+                        onFailure: (err) => {
+                            console.log('failure:user register', err);
+                        },
+                    };
+                    IMI.IMIconnect.register(deviceProfile, registerCallback);
+                }
+
+                function requestPushPermissionForSafari() {
+                    console.log("requestPushPermissionForSafari   called");
+                    var env = imiEnvironments[imiEnvironments["target"]];
+                    var imipush = env.imiclient.imipush;
+                    var safariRegisterURL = env.imiclient.safariRegisterURL;
+                    var permissionData = window.safari.pushNotification.permission(
+                        imipush.safariWebPushId
+                    );
+                    // console.log('imipush: ', imipush);
+                    // console.log('safariRegisterURL: ', safariRegisterURL);
+                    // console.log('permissionData: ', permissionData);
+                    console.log("pushpackage:", `${safariRegisterURL}v1/pushPackages/${imipush.safariWebPushId}`);
+                    window.safari.pushNotification.requestPermission(safariRegisterURL, imipush.safariWebPushId, {}, (res) => console.log(res));
+                }
+                
+            </script>
+
+
+        </div>
+    </div>
+<script>
+var imiEnvironments = {
+                    "target": "default",
+                    "default": {
+                        "asset": {
+                            "appId": 'Safari27_02',
+                            "appSecret": '4tun4YKC',
+                            "pathConfig": {
+                                "assetPath": "/assets/",
+                                "root": "/"
+                            }
+                        },
+                        "imiclient": {
+                            "config": {
+
+                            },
+                            "imipush": {
+                                "safariWebPushId": 'web.com.imiconnect.safari.safari15push'
+                            },
+                            "authdomain": 'https://rtm.imiconnect.site/rtmsAPI',
+                            "rtmsdomain": 'rtmmsg.imiconnect.site',
+                            "safariRegisterURL": 'https://rtm.imiconnect.site/apnpweb/'
+                        },
+                        "sw": {
+                            "config": {
+                                "messagingSenderId": '',
+                                "serverUrl": 'https://rtm.imiconnect.site',
+                                "appid": 'SA27083617'
+                            }
+                        }
+                    }
+                }
+
+</script>
+
+</body>
+
+</html>
